@@ -1,10 +1,22 @@
 # confidant
 Simple configuration management 
 
+<a href="https://travis-ci.org/gautamk/confidant">
+![](https://img.shields.io/travis/gautamk/confidant.svg)
+</a>
+
+<a href="https://pypi.python.org/pypi/confidant">
+![](https://img.shields.io/pypi/v/confidant.svg)
+</a>
+
+
+* Free software: MIT license
 
 # Installation
 
-`pip install confidant`
+```
+pip install confidant
+```
 
 # Choose a Backend
 

@@ -1,3 +1,7 @@
+#### joe made this: http://goel.io/joe
+
+#####=== Python ===#####
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -13,7 +17,6 @@ develop-eggs/
 dist/
 downloads/
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
@@ -37,11 +40,9 @@ pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .coverage
-.coverage.*
 .cache
 nosetests.xml
 coverage.xml
-*,cover
 
 # Translations
 *.mo
@@ -55,7 +56,6 @@ docs/_build/
 
 # PyBuilder
 target/
-#### joe made this: http://goel.io/joe
 
 #####=== JetBrains ===#####
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
@@ -104,8 +104,6 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
-
-#### joe made this: http://goel.io/joe
 
 #####=== VirtualEnv ===#####
 # Virtualenv
