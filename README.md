@@ -1,0 +1,2 @@
+# confidant
+Simple configuration management 
