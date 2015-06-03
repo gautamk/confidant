@@ -10,7 +10,7 @@ Tests for `confidant` module.
 
 import unittest
 
-from confidant import confidant
+from confidant import main
 
 
 class TestConfidant(unittest.TestCase):

@@ -22,7 +22,7 @@ requirements = [
     "click==4.0"
 ]
 
-test_requirements = [
+test_requirements = requirements + [
     # TODO: put package test requirements here
 ]
 
@@ -56,7 +56,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-    test_suite='tests',
+    test_suite='confidant.tests',
     tests_require=test_requirements,
     entry_points='''
         [console_scripts]

@@ -35,7 +35,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 confidant tests
+	flake8 confidant
 
 test:
 	python setup.py test
