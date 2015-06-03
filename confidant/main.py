@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import sys
+import logging
 
 import click
 import pkg_resources  # part of setuptools
@@ -24,19 +23,36 @@ def setup(aws_access_key, aws_secret_key):
     """
     try:
         aws_config.get_aws_config()
-        click.echo("AWS config already setup, delete the file ~/.aws/credentials to setup again")
-        sys.exit(1)
+        logging.debug("~/.aws/credentials exist")
+        raise click.UsageError("AWS config already setup, delete the file ~/.aws/credentials to setup again")
     except aws_config.AWSConfigNotFound:
         aws_config.put_aws_config(aws_access_key_id=aws_access_key,
                                   aws_secret_access_key=aws_secret_key)
 
 
-@click.group()
-def cli():
+@click.command()
+@click.argument('backend', type=click.Choice(['dynamodb']))
+@click.argument('input', type=click.File('r'))
+@click.argument('output', type=click.File('w'))
+def render(backend, input, output):
+    if backend == 'dynamodb':
+        from confidant.backends import dynamodb as module
+    else:
+        raise click.BadParameter('Backend Not found')
+    module.render(input, output)
+
+
+@click.group(invoke_without_command=True)
+@click.option('--debug/--no-debug', default=False)
+@click.pass_context
+def cli(ctx, debug):
     """
     Docs
     """
+    if ctx.invoked_subcommand is None:
+        click.echo("use confidant --help to get more info")
+    if debug:
+        logging.getLogger().setLevel(logging.DEBUG)
 
 
-cli.add_command(version)
-cli.add_command(setup)
+map(cli.add_command, [version, setup, render])

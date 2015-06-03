@@ -68,3 +68,6 @@ dist: clean
 
 install: clean
 	python setup.py install
+
+uninstall: clean
+	pip uninstall confidant

@@ -3,10 +3,9 @@
 
 
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
-
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -34,11 +33,7 @@ setup(
     author="Gautam Kumar",
     author_email='github@gautamk.com',
     url='https://github.com/gautamk/confidant',
-    packages=[
-        'confidant',
-    ],
-    package_dir={'confidant':
-                 'confidant'},
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     include_package_data=True,
     install_requires=requirements,
     license="MIT",
@@ -60,6 +55,6 @@ setup(
     tests_require=test_requirements,
     entry_points='''
         [console_scripts]
-        confidant=confidant.confidant:cli
+        confidant=confidant.main:cli
     '''
 )
