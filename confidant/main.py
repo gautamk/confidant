@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import importlib
 import logging
 
 import click
+from jinja2 import Template
 import pkg_resources  # part of setuptools
 
 from confidant import aws_config
@@ -35,11 +37,10 @@ def setup(aws_access_key, aws_secret_key):
 @click.argument('input', type=click.File('r'))
 @click.argument('output', type=click.File('w'))
 def render(backend, input, output):
-    if backend == 'dynamodb':
-        from confidant.backends import dynamodb as module
-    else:
-        raise click.BadParameter('Backend Not found')
-    module.render(input, output)
+    module = importlib.import_module('confidant.backends.%s' % backend)
+    template = Template(input.read())
+    template.globals['getcv'] = module.getcv
+    output.write(template.render())
 
 
 @click.group(invoke_without_command=True)
