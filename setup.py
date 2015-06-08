@@ -18,7 +18,8 @@ requirements = [
     "itsdangerous==0.24",
     "Jinja2==2.7.3",
     "Sphinx==1.3.1",
-    "click==4.0"
+    "click==4.0",
+    'awscli==1.7.32'
 ]
 
 test_requirements = requirements + [
@@ -55,6 +56,6 @@ setup(
     tests_require=test_requirements,
     entry_points='''
         [console_scripts]
-        confidant=confidant.main:cli
+        confidant=confidant.cli:cli
     '''
 )

@@ -31,12 +31,9 @@ confidant supports the following backends
 - consul
 - zookeeper
 
-# Usage 
+# Usage
 
-1. Render a configuration template 
-
-`confidant render --backend dynamodb /path/to/template > /path/to/config-file`
-
+1. 
 
 # Development
 
