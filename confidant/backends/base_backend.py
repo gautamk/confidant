@@ -2,6 +2,7 @@ __author__ = 'gautam'
 
 
 class BaseBackend(object):
+
     def __init__(self, table_name):
         super(BaseBackend, self).__init__()
         self.table_name = table_name

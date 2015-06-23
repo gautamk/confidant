@@ -1,10 +1,9 @@
 from boto.dynamodb2.fields import HashKey, RangeKey
+from boto.dynamodb2.table import Table
 
-from backends.base_backend import BaseBackend
+from .base_backend import BaseBackend
 
 __author__ = 'gautam'
-
-from boto.dynamodb2.table import Table
 
 
 class DynamodbBackend(BaseBackend):
@@ -57,3 +56,7 @@ class DynamodbBackend(BaseBackend):
         for item in table_scan:
             data_dict[item['key']] = item['val']
         return data_dict
+
+
+def init(table_name):
+    return DynamodbBackend(table_name)
