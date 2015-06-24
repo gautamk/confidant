@@ -1,34 +1,54 @@
+import logging
+
 from boto.dynamodb2.fields import HashKey, RangeKey
 from boto.dynamodb2.table import Table
 
-from .base_backend import BaseBackend
+from confidant.backends import BaseBackend, cache_manager
 
 __author__ = 'gautam'
 
 
 class DynamodbBackend(BaseBackend):
-    def __init__(self, table_name):
-        super(DynamodbBackend, self).__init__(table_name)
-        self.table = Table(table_name)
+    def __init__(self, table_name, env, connection=None):
+        super(DynamodbBackend, self).__init__()
+        self.table_name = table_name,
+        self.env = env
+        self.connection = connection
+        self.kwargs = {}
+        if self.connection:
+            self.kwargs['connection'] = self.connection
+        self.table = Table(table_name, **self.kwargs)
 
-    def init(self, read_throughput=1, write_throughput=1):
+    def initialize(self, read_throughput=1, write_throughput=1):
         return Table.create(self.table_name, schema=[
             HashKey('key'),  # defaults to STRING data_type
             RangeKey('env'),
         ], throughput={
             'read': read_throughput,
             'write': write_throughput
-        })
+        }, **self.kwargs)
 
-    def get(self, env, key):
+    @cache_manager.cache('thecache', expires=3600)
+    def fetch_all(self):
+        logging.info("Fetching all config from {} in {}".format(self.env, self.table_name))
+        table_scan = self.table.scan(env__eq=self.env)
+        data_dict = {}
+        for item in table_scan:
+            data_dict[item['key']] = item['val']
+        return data_dict
+
+    def __getattr__(self, item):
+        return self.get(item)
+
+    def get(self, key):
         """
         Get a key from dynamodb backend
         :param env:
         :param key:
         :return:
         """
-        item = self.table.get_item(key=key, env=env)
-        return item['val']
+        data_dict = self.fetch_all()
+        return data_dict.get(key)
 
     def import_data(self, env, data_dict):
         """
@@ -45,18 +65,10 @@ class DynamodbBackend(BaseBackend):
                     'val': value
                 })
 
-    def export_data(self, env):
+    def export_data(self):
         """
         Bulk Export data as dict
         :param env: the environment to export from
         :return: dict containing the data
         """
-        table_scan = self.table.scan(env__eq=env)
-        data_dict = {}
-        for item in table_scan:
-            data_dict[item['key']] = item['val']
-        return data_dict
-
-
-def init(table_name):
-    return DynamodbBackend(table_name)
+        return self.fetch_all()

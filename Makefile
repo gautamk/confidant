@@ -38,10 +38,12 @@ lint:
 	flake8 confidant
 
 test:
+	wget -c http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_2015-04-27_1.0.tar.gz -O /tmp/dynamodb_local.tar.gz
+	rm -rf /tmp/dynamodb ; mkdir /tmp/dynamodb
+	tar -xvf /tmp/dynamodb_local.tar.gz -C /tmp/dynamodb
+	java -Djava.library.path=/tmp/dynamodb/DynamoDBLocal_lib -jar /tmp/dynamodb/DynamoDBLocal.jar -inMemory > /tmp/dynamodb/dynamodb.log &
+	export DYNAMODB_PID=$$!
 	python setup.py test
-
-test-all:
-	tox
 
 coverage:
 	coverage run --source confidant setup.py test

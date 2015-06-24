@@ -116,3 +116,6 @@ crashlytics-build.properties
 pyvenv.cfg
 pip-selfcheck.json
 docs/
+# Ipython notebooks 
+.ipynb_checkpoints/
+*.ipynb
