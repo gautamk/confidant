@@ -67,7 +67,8 @@ class DynamodbBackend(BaseBackend):
         if key in self.cache:
             return self.cache.get(key)
         else:
-            value = self.__table.get_item(key=key, env=self.__env)
+            value_item = self.__table.get_item(key=key, env=self.__env)
+            value = value_item['val']
             self.cache.set_value(key, value)
             return value
 
