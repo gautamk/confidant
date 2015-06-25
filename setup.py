@@ -14,12 +14,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
-    "boto==2.38.0",
-    "itsdangerous==0.24",
-    "Jinja2==2.7.3",
-    "Sphinx==1.3.1",
-    "click==4.0",
-    'awscli==1.7.32'
+    'boto == 2.38.0',
+    'Beaker==1.7.0'
 ]
 
 test_requirements = requirements + [
@@ -54,8 +50,5 @@ setup(
     ],
     test_suite='confidant.tests',
     tests_require=test_requirements,
-    entry_points='''
-        [console_scripts]
-        confidant=confidant.cli:cli
-    '''
+
 )

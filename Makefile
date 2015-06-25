@@ -38,10 +38,8 @@ lint:
 	flake8 confidant
 
 test:
-	python setup.py test
+	./make_test
 
-test-all:
-	tox
 
 coverage:
 	coverage run --source confidant setup.py test

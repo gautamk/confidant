@@ -108,7 +108,6 @@ crashlytics-build.properties
 #####=== VirtualEnv ===#####
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-.Python
 [Bb]in
 [Ii]nclude
 [Ll]ib
@@ -116,3 +115,6 @@ crashlytics-build.properties
 pyvenv.cfg
 pip-selfcheck.json
 docs/
+# Ipython notebooks 
+.ipynb_checkpoints/
+*.ipynb
