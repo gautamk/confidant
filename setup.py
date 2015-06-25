@@ -19,7 +19,8 @@ requirements = [
 ]
 
 test_requirements = requirements + [
-    # TODO: put package test requirements here
+    'mock==1.0.1',
+    'doublex==1.8.2'
 ]
 
 setup(
