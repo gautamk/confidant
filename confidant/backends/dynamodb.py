@@ -45,7 +45,6 @@ class DynamodbBackend(BaseBackend):
     def __getattr__(self, item):
         return self.get(item)
 
-
     def set(self, key, value):
         try:
             self.__table.put_item({

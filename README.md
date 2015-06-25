@@ -33,7 +33,14 @@ confidant supports the following backends
 
 # Usage
 
-1. 
+```python
+    # In settings.py
+    from confidant.backends.dynamodb import DynamodbBackend
+    config_backend = DynamodbBackend(table_name='dynamodb_table_name', env='production')
+
+    DB_USER = config_backend.DB_USER
+    DB_PASSWORD = config_backend.DB_PASSWORD
+```
 
 # Development
 
