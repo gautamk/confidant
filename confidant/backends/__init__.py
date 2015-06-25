@@ -10,7 +10,6 @@ cache_manager = CacheManager(**parse_cache_config_options({
 
 
 class BaseBackend(object):
-    @cache_manager.cache('thecache', expire=3600)
     def get(self, key):
         return key
 

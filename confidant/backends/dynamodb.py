@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from boto.dynamodb2.fields import HashKey, RangeKey
 from boto.dynamodb2.table import Table
@@ -10,35 +11,52 @@ __author__ = 'gautam'
 
 class DynamodbBackend(BaseBackend):
     def __init__(self, table_name, env, connection=None):
-        super(DynamodbBackend, self).__init__()
-        self.table_name = table_name,
-        self.env = env
-        self.connection = connection
-        self.kwargs = {}
-        if self.connection:
-            self.kwargs['connection'] = self.connection
-        self.table = Table(table_name, **self.kwargs)
+        self.__table_name = table_name
+        self.__env = env
+        self.__connection = connection
+        self.__kwargs = dict(table_name=table_name)
+        if connection:
+            self.__kwargs['connection'] = connection
+        self.__table = Table(**self.__kwargs)
+        self.cache = cache_manager.get_cache(str(uuid.uuid4()), expires=3600)
 
     def initialize(self, read_throughput=1, write_throughput=1):
-        return Table.create(self.table_name, schema=[
+        kwargs = self.__kwargs.copy()
+        kwargs['schema'] = [
             HashKey('key'),  # defaults to STRING data_type
             RangeKey('env'),
-        ], throughput={
+        ]
+        kwargs['throughput'] = {
             'read': read_throughput,
             'write': write_throughput
-        }, **self.kwargs)
+        }
+        return Table.create(**kwargs)
 
-    @cache_manager.cache('thecache', expires=3600)
     def fetch_all(self):
-        logging.info("Fetching all config from {} in {}".format(self.env, self.table_name))
-        table_scan = self.table.scan(env__eq=self.env)
+        logging.info("Fetching all config from {} in {}".format(self.__env, self.__table_name))
+        table_scan = self.__table.scan(env__eq=self.__env)
         data_dict = {}
         for item in table_scan:
-            data_dict[item['key']] = item['val']
+            key, value = item['key'], item['val']
+            data_dict[key] = value
+            self.cache.set_value(key, value)
         return data_dict
 
     def __getattr__(self, item):
         return self.get(item)
+
+
+    def set(self, key, value):
+        try:
+            self.__table.put_item({
+                'key': key,
+                'env': self.__env,
+                'val': value
+            }, overwrite=True)
+            self.cache.set_value(key, value)
+        except:
+            logging.exception("Error setting value")
+            raise
 
     def get(self, key):
         """
@@ -47,8 +65,12 @@ class DynamodbBackend(BaseBackend):
         :param key:
         :return:
         """
-        data_dict = self.fetch_all()
-        return data_dict.get(key)
+        if key in self.cache:
+            return self.cache.get(key)
+        else:
+            value = self.__table.get_item(key=key, env=self.__env)
+            self.cache.set_value(key, value)
+            return value
 
     def import_data(self, env, data_dict):
         """
@@ -57,7 +79,7 @@ class DynamodbBackend(BaseBackend):
         :param data_dict: dict data as key-value pairs, Data is expected to be flat
         :return: None
         """
-        with self.table.batch_write() as batch:
+        with self.__table.batch_write() as batch:
             for key, value in data_dict.iteritems():
                 batch.put_item(data={
                     'env': env,
