@@ -22,7 +22,8 @@ pip install confidant
 
 confidant supports the following backends 
 
-- [dynamodb](https://aws.amazon.com/dynamodb/)
+- [DynamodbBackend](https://aws.amazon.com/dynamodb/)
+- FileBackend (for local testing)
 
 ## TODO
 
