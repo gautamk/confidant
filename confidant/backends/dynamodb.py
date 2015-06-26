@@ -72,7 +72,7 @@ class DynamodbBackend(BaseBackend):
             self.cache.set_value(key, value)
             return value
 
-    def import_data(self, env, data_dict):
+    def import_data(self, data_dict):
         """
         Bulk import data into configuration table
         :param env: the environment to import into
@@ -82,7 +82,7 @@ class DynamodbBackend(BaseBackend):
         with self.__table.batch_write() as batch:
             for key, value in data_dict.iteritems():
                 batch.put_item(data={
-                    'env': env,
+                    'env': self.__env,
                     'key': key,
                     'val': value
                 })

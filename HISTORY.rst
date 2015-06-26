@@ -3,11 +3,11 @@
 History
 -------
 
-0.0.5 (2015-06-26)
+0.0.6 (2015-06-26)
 ---------------------
 
 * Bugfixes
-* Cleaner API
+* Cleaner consistent API
 * Removed Command Line Interface
 
 0.0.1 (2015-06-02)
