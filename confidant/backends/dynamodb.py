@@ -3,8 +3,9 @@ import uuid
 
 from boto.dynamodb2.fields import HashKey, RangeKey
 from boto.dynamodb2.table import Table
+from boto.exception import JSONResponseError
 
-from confidant.backends import BaseBackend, cache_manager
+from confidant.backends import BaseBackend, cache_manager, BackendNotInitializedError
 
 __author__ = 'gautam'
 
@@ -42,9 +43,6 @@ class DynamodbBackend(BaseBackend):
             self.cache.set_value(key, value)
         return data_dict
 
-    def __getattr__(self, item):
-        return self.get(item)
-
     def set(self, key, value):
         try:
             self.__table.put_item({
@@ -53,9 +51,10 @@ class DynamodbBackend(BaseBackend):
                 'val': value
             }, overwrite=True)
             self.cache.set_value(key, value)
-        except:
-            logging.exception("Error setting value")
-            raise
+        except JSONResponseError as e:
+            if e.body.get('Message') == 'Cannot do operations on a non-existent table':
+                raise BackendNotInitializedError("Unable to decode file, Try calling the initialize method", e)
+            raise e
 
     def get(self, key):
         """
@@ -67,10 +66,16 @@ class DynamodbBackend(BaseBackend):
         if key in self.cache:
             return self.cache.get(key)
         else:
-            value_item = self.__table.get_item(key=key, env=self.__env)
-            value = value_item['val']
-            self.cache.set_value(key, value)
-            return value
+            try:
+                value_item = self.__table.get_item(key=key, env=self.__env)
+                value = value_item['val']
+                self.cache.set_value(key, value)
+                return value
+            except JSONResponseError as e:
+
+                if e.body.get('Message') == 'Cannot do operations on a non-existent table':
+                    raise BackendNotInitializedError("Unable to decode file, Try calling the initialize method", e)
+                raise e
 
     def import_data(self, data_dict):
         """

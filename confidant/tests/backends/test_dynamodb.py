@@ -1,36 +1,29 @@
 import random
-import string
-import unittest
 import uuid
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
 
+from confidant.backends import BackendNotInitializedError
 from confidant.backends.dynamodb import DynamodbBackend
+from confidant.tests import BaseTest
 
 __author__ = 'gautam'
 
 
-class TestDaynamodbBackend(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestDaynamodbBackend, cls).setUpClass()
-        # Connect to DynamoDB Local
-        cls.conn = DynamoDBConnection(
+class TestDaynamodbBackend(BaseTest):
+    def setUp(self):
+        super(TestDaynamodbBackend, self).setUp()
+        self.conn = DynamoDBConnection(
             host='localhost',
             port=8000,
             aws_access_key_id='anything',
             aws_secret_access_key='anything',
             is_secure=False)
-        cls.backend = DynamodbBackend('testdb', 'prd', connection=cls.conn)
-        cls.backend.initialize()
-        cls.backend.set('TEST', 'TEST')
-
-    def setUp(self):
-        super(TestDaynamodbBackend, self).setUp()
-        self.backend = self.__class__.backend
-        self.conn = self.__class__.conn
+        self.backend = DynamodbBackend(self.random_string(), self.random_string(), connection=self.conn)
+        self.backend.initialize()
 
     def test_get(self):
+        self.backend.set('TEST', 'TEST')
         self.assertEquals(self.backend.get('TEST'), 'TEST')
 
     def test_set(self):
@@ -56,25 +49,23 @@ class TestDaynamodbBackend(unittest.TestCase):
         self.assertEquals(self.backend.RANDOM_VALUE, random_value)
         self.assertEquals(self.backend.get('RANDOM_VALUE'), random_value)
 
-    def __random_string(self):
-        max_len = random.randint(1, 100)
-        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in xrange(max_len))
-
-    def __generate_random_dict(self):
-        max_len = random.randint(1, 100)
-        return {self.__random_string(): self.__random_string() for _ in xrange(max_len)}
-
     def test_import(self):
-        backend = DynamodbBackend(self.__random_string(), self.__random_string(), connection=self.conn)
-        backend.initialize()
-        data_dict = self.__generate_random_dict()
-        backend.import_data(data_dict)
+        data_dict = self.random_dict()
+        self.backend.import_data(data_dict)
         for k, v in data_dict.iteritems():
-            self.assertEqual(backend.get(k), v)
+            self.assertEqual(self.backend.get(k), v)
 
     def test_export(self):
-        backend = DynamodbBackend(self.__random_string(), self.__random_string(), connection=self.conn)
-        backend.initialize()
-        data_dict = self.__generate_random_dict()
-        backend.import_data(data_dict)
-        self.assertDictEqual(backend.export_data(), data_dict)
+        data_dict = self.random_dict()
+        self.backend.import_data(data_dict)
+        self.assertDictEqual(self.backend.export_data(), data_dict)
+
+    def test_get_uninitialized(self):
+        backend = DynamodbBackend(self.random_string(), self.random_string(), connection=self.conn)
+        with self.assertRaises(BackendNotInitializedError):
+            backend.get('TEST')
+
+    def test_set_uninitialized(self):
+        backend = DynamodbBackend(self.random_string(), self.random_string(), connection=self.conn)
+        with self.assertRaises(BackendNotInitializedError):
+            backend.set('TEST', 'TEST')

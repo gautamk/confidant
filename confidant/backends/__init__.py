@@ -11,11 +11,27 @@ cache_manager = CacheManager(**parse_cache_config_options({
 
 class BaseBackend(object):
     def get(self, key):
-        return key
+        pass
+
+    def __getattr__(self, item):
+        return self.get(item)
 
     def initialize(self):
         """
         Initialize the backend if necessary
         :return:
         """
-        raise NotImplementedError()
+        pass
+
+    def import_data(self, data_dict):
+        pass
+
+    def export_data(self):
+        pass
+
+    def set(self, key, value):
+        pass
+
+
+class BackendNotInitializedError(ValueError):
+    pass

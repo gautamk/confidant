@@ -3,7 +3,8 @@ wget -c http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_
 rm -rf /tmp/dynamodb
 mkdir /tmp/dynamodb
 tar -xvf /tmp/dynamodb_local.tar.gz -C /tmp/dynamodb
-java -Djava.library.path=/tmp/dynamodb/DynamoDBLocal_lib -jar /tmp/dynamodb/DynamoDBLocal.jar -inMemory > /tmp/dynamodb/dynamodb.log &
+DYNAMODB_PATH=`mktemp -d`
+java -Djava.library.path=/tmp/dynamodb/DynamoDBLocal_lib -jar /tmp/dynamodb/DynamoDBLocal.jar -dbPath "$DYNAMODB_PATH" > "$DYNAMODB_PATH/daynamodb.log" &
 DYNAMODB_PID="$!"
 echo $DYNAMODB_PID
 {
@@ -14,3 +15,4 @@ echo $DYNAMODB_PID
 }
 
 kill "$DYNAMODB_PID"
+rm -rf $DYNAMODB_PATH
