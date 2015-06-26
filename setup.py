@@ -25,7 +25,7 @@ test_requirements = requirements + [
 
 setup(
     name='confidant',
-    version='0.0.3',
+    version='0.0.5',
     description="Simple configuration management",
     long_description=readme + '\n\n' + history,
     author="Gautam Kumar",
