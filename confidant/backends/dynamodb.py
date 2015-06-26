@@ -4,6 +4,7 @@ import uuid
 from boto.dynamodb2.fields import HashKey, RangeKey
 from boto.dynamodb2.table import Table
 from boto.exception import JSONResponseError
+import six
 
 from confidant.backends import BaseBackend, cache_manager, BackendNotInitializedError
 
@@ -85,7 +86,7 @@ class DynamodbBackend(BaseBackend):
         :return: None
         """
         with self.__table.batch_write() as batch:
-            for key, value in data_dict.iteritems():
+            for key, value in six.iteritems(data_dict):
                 batch.put_item(data={
                     'env': self.__env,
                     'key': key,

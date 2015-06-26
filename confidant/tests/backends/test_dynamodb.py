@@ -2,6 +2,7 @@ import random
 import uuid
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
+import six
 
 from confidant.backends import BackendNotInitializedError
 from confidant.backends.dynamodb import DynamodbBackend
@@ -52,7 +53,7 @@ class TestDaynamodbBackend(BaseTest):
     def test_import(self):
         data_dict = self.random_dict()
         self.backend.import_data(data_dict)
-        for k, v in data_dict.iteritems():
+        for k, v in six.iteritems(data_dict):
             self.assertEqual(self.backend.get(k), v)
 
     def test_export(self):

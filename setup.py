@@ -15,7 +15,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'boto == 2.38.0',
-    'Beaker==1.7.0'
+    'Beaker==1.7.0',
+    'six==1.9.0'
 ]
 
 test_requirements = requirements + [
