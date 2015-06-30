@@ -40,7 +40,7 @@ class DynamodbBackend(BaseBackend):
         table_scan = self.__table.scan(env__eq=self.__env)
         data_dict = {}
         for item in table_scan:
-            key, value = item['key'], item['val']
+            key, value = item['key'], self._simplify_types(item['val'])
             data_dict[key] = value
             self.cache.set_value(key, value)
         return data_dict
