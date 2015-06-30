@@ -1,10 +1,11 @@
 import logging
 import uuid
+from decimal import Decimal
 
+import six
 from boto.dynamodb2.fields import HashKey, RangeKey
 from boto.dynamodb2.table import Table
 from boto.exception import JSONResponseError
-import six
 
 from confidant.backends import BaseBackend, cache_manager, BackendNotInitializedError
 
@@ -57,6 +58,11 @@ class DynamodbBackend(BaseBackend):
                 raise BackendNotInitializedError("Unable to decode file, Try calling the initialize method", e)
             raise e
 
+    def _simplify_types(self, value):
+        if type(value) == Decimal:
+            return float(value) if '.' in str(value) else int(value)
+        return value
+
     def get(self, key):
         """
         Get a key from dynamodb backend
@@ -69,7 +75,7 @@ class DynamodbBackend(BaseBackend):
         else:
             try:
                 value_item = self.__table.get_item(key=key, env=self.__env)
-                value = value_item['val']
+                value = self._simplify_types(value_item['val'])
                 self.cache.set_value(key, value)
                 return value
             except JSONResponseError as e:
