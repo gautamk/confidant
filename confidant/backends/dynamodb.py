@@ -59,8 +59,19 @@ class DynamodbBackend(BaseBackend):
             raise e
 
     def _simplify_types(self, value):
-        if type(value) == Decimal:
+        _type = type(value)
+        if _type == Decimal:
             return float(value) if '.' in str(value) else int(value)
+        elif _type == dict:
+            simple_values = {}
+            for key, val in six.iteritems(value):
+                simple_values[key] = self._simplify_types(val)
+            return simple_values
+        elif _type == list:
+            simple_values = []
+            for item in value:
+                simple_values.append(self._simplify_types(item))
+            return simple_values
         return value
 
     def get(self, key):
