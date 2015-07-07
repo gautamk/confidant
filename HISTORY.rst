@@ -3,6 +3,12 @@
 History
 -------
 
+0.1 (2015-07-07)
+-----------------
+
+* Recursive simplification of types from dynamodb
+
+
 0.0.7 (2015-06-26)
 ---------------------
 
