@@ -12,6 +12,23 @@ from confidant.backends import BaseBackend, cache_manager, BackendNotInitialized
 __author__ = 'gautam'
 
 
+def _simplify_types(value):
+    _type = type(value)
+    if _type == Decimal:
+        return float(value) if '.' in str(value) else int(value)
+    elif _type == dict:
+        simple_values = {}
+        for key, val in six.iteritems(value):
+            simple_values[key] = _simplify_types(val)
+        return simple_values
+    elif _type == list:
+        simple_values = []
+        for item in value:
+            simple_values.append(_simplify_types(item))
+        return simple_values
+    return value
+
+
 class DynamodbBackend(BaseBackend):
     def __init__(self, table_name, env, connection=None):
         self.__table_name = table_name
@@ -40,7 +57,7 @@ class DynamodbBackend(BaseBackend):
         table_scan = self.__table.scan(env__eq=self.__env)
         data_dict = {}
         for item in table_scan:
-            key, value = item['key'], self._simplify_types(item['val'])
+            key, value = item['key'], _simplify_types(item['val'])
             data_dict[key] = value
             self.cache.set_value(key, value)
         return data_dict
@@ -58,26 +75,9 @@ class DynamodbBackend(BaseBackend):
                 raise BackendNotInitializedError("Unable to decode file, Try calling the initialize method", e)
             raise e
 
-    def _simplify_types(self, value):
-        _type = type(value)
-        if _type == Decimal:
-            return float(value) if '.' in str(value) else int(value)
-        elif _type == dict:
-            simple_values = {}
-            for key, val in six.iteritems(value):
-                simple_values[key] = self._simplify_types(val)
-            return simple_values
-        elif _type == list:
-            simple_values = []
-            for item in value:
-                simple_values.append(self._simplify_types(item))
-            return simple_values
-        return value
-
     def get(self, key):
         """
         Get a key from dynamodb backend
-        :param env:
         :param key:
         :return:
         """
@@ -86,7 +86,7 @@ class DynamodbBackend(BaseBackend):
         else:
             try:
                 value_item = self.__table.get_item(key=key, env=self.__env)
-                value = self._simplify_types(value_item['val'])
+                value = _simplify_types(value_item['val'])
                 self.cache.set_value(key, value)
                 return value
             except JSONResponseError as e:
@@ -98,7 +98,6 @@ class DynamodbBackend(BaseBackend):
     def import_data(self, data_dict):
         """
         Bulk import data into configuration table
-        :param env: the environment to import into
         :param data_dict: dict data as key-value pairs, Data is expected to be flat
         :return: None
         """
@@ -113,7 +112,6 @@ class DynamodbBackend(BaseBackend):
     def export_data(self):
         """
         Bulk Export data as dict
-        :param env: the environment to export from
         :return: dict containing the data
         """
         return self.fetch_all()
